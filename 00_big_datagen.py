@@ -56,7 +56,7 @@ class DataGen:
     def __init__(self, spark):
         self.spark = spark
 
-    def dataGen(self, shuffle_partitions_requested = 10, partitions_requested = 10, data_rows = 10000):
+    def dataGen(self, shuffle_partitions_requested = 100, partitions_requested = 100, data_rows = 100000):
 
         # partition parameters etc.
         self.spark.conf.set("spark.sql.shuffle.partitions", shuffle_partitions_requested)
@@ -64,7 +64,7 @@ class DataGen:
         dataSpec = (DataGenerator(self.spark, rows=data_rows, partitions=partitions_requested)
                     .withColumn("col1", values=["A", "B", "C", "D", "E", "F", "G"]))
 
-        for i in range(2, 100):
+        for i in range(2, 10000):
             col_n = f"col{i}"
             dataSpec = dataSpec.withColumn(col_n, "float", minValue=1, maxValue=10000000, random=True)
 
@@ -84,5 +84,5 @@ modinDG = DataGen(spark)
 
 STORAGE="s3a://paul-aug26-buk-a3c2b50a/data/"
 sparkDf = modinDG.dataGen()
-sparkDf.write.format("parquet").mode("overwrite").save(STORAGE+"pdefusco/modin/100cols")
+sparkDf.write.format("parquet").mode("overwrite").save(STORAGE+"pdefusco/modin/10kcols_100parts")
 #transactionsDf.write.format("json").mode("overwrite").save("/home/cdsw/jsonData2.json")
