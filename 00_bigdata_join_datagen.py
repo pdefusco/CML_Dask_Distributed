@@ -56,16 +56,16 @@ class DataGen:
     def __init__(self, spark):
         self.spark = spark
 
-    def dataGen(self, shuffle_partitions_requested = 100, partitions_requested = 100, data_rows = 10000):
+    def dataGen(self, shuffle_partitions_requested = 1000, partitions_requested = 1000, data_rows = 1000000000):
 
         # partition parameters etc.
         self.spark.conf.set("spark.sql.shuffle.partitions", shuffle_partitions_requested)
 
         dataSpec = (DataGenerator(self.spark, rows=data_rows, partitions=partitions_requested)
-                    .withColumn("unique_id", "string", minValue=1, maxValue=10000, step=1, prefix='ID', random=True)
+                    .withColumn("unique_id", "string", minValue=1, maxValue=500000, step=1, prefix='ID', random=True)
                     .withColumn("col1", values=["A", "B", "C", "D", "E", "F", "G"]))
 
-        for i in range(2, 1000):
+        for i in range(2, 100000):
             col_n = f"col{i}"
             dataSpec = dataSpec.withColumn(col_n, "float", minValue=1, maxValue=10000000, random=True)
 
@@ -83,7 +83,7 @@ spark = SparkSession \
 
 modinDG = DataGen(spark)
 
-STORAGE="s3a://paul-aug26-buk-a3c2b50a/data/"
+STORAGE="s3a://paul-projs-nov-11-buk-c52770c3/data/"
 sparkDf = modinDG.dataGen()
-sparkDf.write.format("parquet").mode("overwrite").save(STORAGE+"pdefusco/daskdist/1kcols_10krows_100parts_wid")
+sparkDf.write.format("parquet").mode("overwrite").save(STORAGE+"pdefusco/daskdist/100kcols_1Brows_1000parts_wid")
 #transactionsDf.write.format("json").mode("overwrite").save("/home/cdsw/jsonData2.json")
